@@ -1,0 +1,15 @@
+{% extends 'blog/base.html' %}
+{% load crispy_forms_tags %}
+{% block main %}
+
+<h1 class="page-header">
+    Login
+</h1>
+
+<form action="{%url 'blog_login'%}" method="POST">
+    {% csrf_token %}
+    {{form|crispy}}
+    <input type="submit" value="Login" class="btn btn-default">
+</form>
+
+{% endblock %}

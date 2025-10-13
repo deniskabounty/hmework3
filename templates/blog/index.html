@@ -1,0 +1,59 @@
+{% extends 'blog/base.html' %}
+
+{% block main %}
+
+<h1 class="page-header">
+    Page Heading
+    <small>Secondary Text</small>
+</h1>
+
+{% for post in page_obj %}
+<!-- First Blog Post -->
+<div class="tags">
+    {% for tag in post.tags.all %}
+      <span class="tag">{{tag.name}} </span>
+    {% endfor %}
+</div>
+<h2>
+    <a href="{% url 'post' slug=post.slug %}">{{post.title}}</a>
+</h2>
+<p class="lead">
+    by <a href="index.php">{{post.auther}}</a>
+</p>
+<p><span class="glyphicon glyphicon-time"></span> Posted on {{post.published_date}}</p>
+<hr>
+<img class="img-responsive" src="{{post.image}}" alt="">
+<hr>
+<p>{{post.content|truncatewords:20}}</p>
+<a class="btn btn-primary" href="{% url 'post' slug=post.slug %}">Read More <span
+        class="glyphicon glyphicon-chevron-right"></span></a>
+
+{% empty %}
+<p>Немає постів !</p>
+{% endfor %}
+<!-- Pager -->
+<!--<ul class="pager">-->
+<!--    <li class="previous">-->
+<!--        <a href="#">&larr; Older</a>-->
+<!--    </li>-->
+<!--    <li class="next">-->
+<!--        <a href="#">Newer &rarr;</a>-->
+<!--    </li>-->
+<!--</ul>-->
+
+<nav >
+<ul class="pagination">
+    {% if page_obj.has_previous %}
+    <li class="page-item"><a class="page_link" href="?page=1">First</a></li>
+    <li class="page-item"><a class="page_link" href="?page={{ page_obj.previous_page_number }}">Prev</a></li>
+    {% endif %}
+
+    <span>Сторінка {{ page_obj.number }} із {{page_obj.paginator.num_pages }}</span>
+
+    {% if page_obj.has_next %}
+    <li class="page-item"><a class="page_link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+    <li class="page-item"><a class="page_link" href="?page={{ page_obj.paginator.num_pages }}">Last</a></li>
+    {% endif %}
+</ul>
+</nav>
+{% endblock %}

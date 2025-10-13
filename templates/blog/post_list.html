@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Все посты</title>
+</head>
+<body>
+    <h1>Все публикации</h1>
+
+    {% for post in posts %}
+        <div style="border-bottom: 1px solid #ccc; margin-bottom: 15px;">
+            <h2>{{ post.title }}</h2>
+            <p><small>{{ post.published_date }}</small></p>
+            <p>{{ post.content|truncatewords:30 }}</p>
+            <a href="{% url 'post_detail' post.slug %}">Читать дальше</a>
+        </div>
+    {% empty %}
+        <p>Пока нет публикаций.</p>
+    {% endfor %}
+</body>
+</html>

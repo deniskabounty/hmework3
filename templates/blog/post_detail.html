@@ -1,0 +1,26 @@
+<h1>{{ post.title }}</h1>
+<p>{{ post.content }}</p>
+
+<hr>
+<h3>Комментарии:</h3>
+
+{% for comment in comments %}
+  <div style="margin-bottom: 10px;">
+    <strong>{{ comment.author.username }}</strong> сказал:
+    <p>{{ comment.text }}</p>
+    <small>{{ comment.created_at }}</small>
+  </div>
+{% empty %}
+  <p>Комментариев пока нет.</p>
+{% endfor %}
+
+<hr>
+{% if user.is_authenticated %}
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Добавить комментарий</button>
+  </form>
+{% else %}
+  <p>Чтобы оставить комментарий, <a href="{% url 'login' %}">войдите</a>.</p>
+{% endif %}

@@ -1,0 +1,15 @@
+{% extends 'blog/base.html' %}
+
+{% block main %}
+
+<h1 class="page-header">
+    Logout
+</h1>
+
+<form action="{% url 'create' %}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ formCreate.as_p}}
+    <input type="submit" value="save" class="btn btn-default">
+</form>
+
+{% endblock %}
