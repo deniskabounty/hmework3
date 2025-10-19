@@ -1,76 +1,96 @@
 {% extends 'blog/base.html' %}
 
 {% block main %}
-                <!-- Blog Post -->
-                <!-- Title -->
-                <h1>{{post.title}}</h1>
-                <!-- Author -->
-                <p class="lead">
-                    by <a href="#">{{post.auther}}</a>
-                </p>
-                <hr>
-                <!-- Date/Time -->
-                <p><span class="glyphicon glyphicon-time"></span> Posted on {{post.published_date}}</p>
-                <hr>
-                <!-- Preview Image -->
-                <img class="img-responsive" src="{{post.image}}" alt="">
-                <hr>
-                <!-- Post Content -->
-                <p class="lead">{{post.content}}</p>
-                <hr>
-                <!-- Blog Comments -->
-                <!-- Comments Form -->
-                <div class="well">
-                    <h4>Leave a Comment:</h4>
-                    <form role="form">
-                        <div class="form-group">
-                            <textarea class="form-control" rows="3"></textarea>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                </div>
+<!-- Blog Post -->
+<!-- Title -->
+<h1>{{ post.title }}</h1>
+<!-- Author -->
+<p class="lead">
+    by <a href="#">{{ post.auther }}</a>
+</p>
+<hr>
+<!-- Date/Time -->
+<p><span class="glyphicon glyphicon-time"></span> Posted on {{ post.published_date }}</p>
+<hr>
+<!-- Preview Image -->
+<img class="img-responsive" src="{{ post.image }}" alt="">
+<hr>
+<!-- Post Content -->
+<p class="lead">{{ post.content|linebreaks }}</p>
+<hr>
 
-                <hr>
+<div class="well" style="background: #e3f2fd; border: 1px solid #2196f3;">
+    <h4>📧 Подписаться на новости</h4>
 
-                <!-- Posted Comments -->
+    {% if subscription_success %}
+        <div class="alert alert-success">
+            ✅ Спасибо за подписку, теперь вы будете получать новости
+        </div>
+    {% endif %}
 
-                <!-- Comment -->
-                <div class="media">
-                    <a class="pull-left" href="#">
-                        <img class="media-object" src="http://placehold.it/64x64" alt="">
-                    </a>
-                    <div class="media-body">
-                        <h4 class="media-heading">Start Bootstrap
-                            <small>August 25, 2014 at 9:30 PM</small>
-                        </h4>
-                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-                    </div>
-                </div>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <input type="email" name="email" class="form-control" placeholder="Введите ваш email..." required style="padding: 12px; font-size: 16px;">
+        </div>
+        <button type="submit" name="subscribe_submit" class="btn btn-primary btn-lg">
+            Подписаться
+        </button>
+    </form>
+</div>
 
-                <!-- Comment -->
-                <div class="media">
-                    <a class="pull-left" href="#">
-                        <img class="media-object" src="http://placehold.it/64x64" alt="">
-                    </a>
-                    <div class="media-body">
-                        <h4 class="media-heading">Start Bootstrap
-                            <small>August 25, 2014 at 9:30 PM</small>
-                        </h4>
-                        Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-                        <!-- Nested Comment -->
-                        <div class="media">
-                            <a class="pull-left" href="#">
-                                <img class="media-object" src="http://placehold.it/64x64" alt="">
-                            </a>
-                            <div class="media-body">
-                                <h4 class="media-heading">Nested Start Bootstrap
-                                    <small>August 25, 2014 at 9:30 PM</small>
-                                </h4>
-                                Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin commodo. Cras purus odio, vestibulum in vulputate at, tempus viverra turpis. Fusce condimentum nunc ac nisi vulputate fringilla. Donec lacinia congue felis in faucibus.
-                            </div>
-                        </div>
-                        <!-- End Nested Comment -->
-                    </div>
-                </div>
+<hr>
+
+<div class="well">
+    <h4>💬 Оставить комментарий</h4>
+
+    {% if comment_success %}
+        <div class="alert alert-success">
+            ✅ Комментарий добавлен
+        </div>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <textarea name="text" class="form-control" rows="4" placeholder="Напишите свой комментарий..." required style="font-size: 16px; padding: 12px;"></textarea>
+            </div>
+            <button type="submit" name="comment_submit" class="btn btn-success btn-lg">
+                📝 Добавить комментарий
+            </button>
+        </form>
+    {% else %}
+        <div class="alert alert-info">
+            🔐 Чтобы оставить комментарий
+            <a href="{% url 'blog_login' %}" class="alert-link">войдите в систему</a>.
+        </div>
+    {% endif %}
+</div>
+
+<hr>
+
+<h3>💬 Коментарии ({{ comments.count }})</h3>
+
+{% for comment in comments %}
+<div class="media" style="margin-bottom: 25px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; background: #fafafa;">
+    <a class="pull-left" href="#">
+        <img class="media-object" src="http://placehold.it/64x64" alt="" style="border-radius: 50%;">
+    </a>
+    <div class="media-body">
+        <h4 class="media-heading">
+            <strong style="color: #2c3e50;">{{ comment.author.username }}</strong>
+            <small style="color: #7f8c8d;">{{ comment.created_at|date:"d.m.Y о H:i" }}</small>
+        </h4>
+        <p style="font-size: 16px; line-height: 1.6; color: #34495e; margin-top: 10px;">
+            {{ comment.text|linebreaks }}
+        </p>
+    </div>
+</div>
+{% empty %}
+<div class="alert alert-info" style="text-align: center; font-size: 16px;">
+    📝 Коментариев нет. Будьте первыми
+</div>
+{% endfor %}
 
 {% endblock %}

@@ -7,7 +7,8 @@ from django.utils.timezone import now
 from django.contrib.auth import logout
 from django.shortcuts import redirect
 from django.views.generic import CreateView
-from .forms import CommentForm
+from .models import Post, Category, Comment, Subscription
+from .forms import PostForm, CommentForm, SubscriptionForm
 
 
 from .models import Post, Category
@@ -45,10 +46,48 @@ def contact(request):
 
 def post(request, slug=None):
     post = get_object_or_404(Post, slug=slug)
-    context = {'post': post}
+
+    # Получаем комментарии из базы
+    comments = Comment.objects.filter(post=post).order_by('-created_at')
+
+    subscription_success = False
+    comment_success = False
+
+    if request.method == 'POST':
+        # Обработка подписки
+        if 'subscribe_submit' in request.POST:
+            email = request.POST.get('email')
+            if email and '@' in email:
+                subscription_success = True
+
+        # Обработка комментария
+        elif 'comment_submit' in request.POST:
+            if request.user.is_authenticated:
+                text = request.POST.get('text')
+                if text and text.strip():
+                    # Создаем комментарий
+                    Comment.objects.create(
+                        post=post,
+                        author=request.user,
+                        text=text.strip()
+                    )
+                    comment_success = True
+                    # Обновляем список комментариев
+                    comments = Comment.objects.filter(post=post).order_by('-created_at')
+            else:
+                # Если пользователь не авторизован
+                from django.contrib import messages
+                messages.error(request, 'Для комментирования необходимо войти в систему.')
+                return redirect('blog_login')
+
+    context = {
+        'post': post,
+        'comments': comments,
+        'subscription_success': subscription_success,
+        'comment_success': comment_success,
+    }
     context.update(get_categories())
     return render(request, "blog/post.html", context=context)
-
 
 def category(request, slug=None):
     c = get_object_or_404(Category, slug=slug)
@@ -112,23 +151,46 @@ def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
     comments = post.comments.all().order_by('-created_at')
 
-    if request.method == 'POST':
-        form = CommentForm(request.POST)
-        if form.is_valid():
-            comment = form.save(commit=False)
-            comment.post = post
-            comment.author = request.user
-            comment.save()
-            return redirect('post_detail', pk=post.pk)
-    else:
-        form = CommentForm()
+    # Инициализируем формы
+    comment_form = CommentForm()
+    subscription_form = SubscriptionForm()
+    subscription_success = False
 
-    return render(request, 'blog/post_detail.html', {
+    if request.method == 'POST':
+        # Обработка комментария
+        if 'comment_submit' in request.POST:
+            if request.user.is_authenticated:
+                comment_form = CommentForm(request.POST)
+                if comment_form.is_valid():
+                    comment = comment_form.save(commit=False)
+                    comment.post = post
+                    comment.author = request.user
+                    comment.save()
+                    return redirect('post_detail', pk=post.pk)
+            else:
+                return redirect('blog_login')
+
+        # Обработка подписки
+        elif 'subscribe_submit' in request.POST:
+            subscription_form = SubscriptionForm(request.POST)
+            if subscription_form.is_valid():
+                email = subscription_form.cleaned_data['email']
+                # Проверяем, нет ли уже такой подписки
+                if not Subscription.objects.filter(email=email).exists():
+                    subscription = subscription_form.save(commit=False)
+                    if request.user.is_authenticated:
+                        subscription.user = request.user
+                    subscription.save()
+                    subscription_success = True
+                else:
+                    subscription_success = True  # Все равно показываем успех
+
+    context = {
         'post': post,
         'comments': comments,
-        'form': form,
-    })
-
-def post_list(request):
-    posts = Post.objects.all().order_by('-published_date')
-    return render(request, 'blog/post_list.html', {'posts': posts})
+        'comment_form': comment_form,
+        'subscription_form': subscription_form,
+        'subscription_success': subscription_success,
+    }
+    context.update(get_categories())
+    return render(request, 'blog/post_detail.html', context)
