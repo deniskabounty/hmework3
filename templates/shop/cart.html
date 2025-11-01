@@ -1,0 +1,56 @@
+{% extends 'blog/base.html' %}
+{% block main %}
+
+<h2 class="mb-4">🧺 Корзина</h2>
+
+{% if cart.total_qty == 0 %}
+  <div class="alert alert-info">Корзина пуста.</div>
+  <a href="{% url 'product_list' %}" class="btn btn-primary">Перейти в каталог</a>
+{% else %}
+  <div class="table-responsive">
+    <table class="table table-dark table-striped align-middle">
+      <thead>
+        <tr>
+          <th>Товар</th>
+          <th style="width:120px">Кол-во</th>
+          <th>Цена</th>
+          <th>Сумма</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for pid, item in cart.items.items %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center gap-3">
+              {% if item.image %}
+                <img src="{{ item.image }}" style="width:64px;height:64px;object-fit:cover;border-radius:6px;">
+              {% endif %}
+              <a href="{% url 'product_detail' item.slug %}" class="text-decoration-none">{{ item.name }}</a>
+            </div>
+          </td>
+          <td>{{ item.qty }}</td>
+          <td>{{ item.price }} ₴</td>
+          <td>{{ item.subtotal|floatformat:2 }} ₴</td>
+          <td>
+            <a href="{% url 'cart_remove' pid %}" class="btn btn-sm btn-outline-danger">Удалить</a>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="d-flex justify-content-between align-items-center mt-3">
+    <div>
+      <a href="{% url 'cart_clear' %}" class="btn btn-outline-secondary">Очистить</a>
+      <a href="{% url 'product_list' %}" class="btn btn-link">← В каталог</a>
+    </div>
+    <div class="fs-5">
+      Итого: <strong>{{ cart.total_sum|floatformat:2 }} ₴</strong> (товаров: {{ cart.total_qty }})
+      <a href="{% url 'cart_checkout' %}" class="btn btn-success ms-3">Оформить заказ</a>
+    </div>
+  </div>
+{% endif %}
+
+{% endblock %}
