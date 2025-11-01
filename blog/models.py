@@ -41,12 +41,11 @@ class Post(models.Model):
     slug = models.SlugField(max_length=220, unique=True, db_index=True)
     title = models.CharField(max_length=200, verbose_name="Заголовок")
     content = models.TextField(verbose_name="Опис")
-    published_date = models.DateTimeField(auto_created=True, verbose_name="Дата публікації")
+    published_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата публікації")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Категорія")
     auther = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Автор", default=1)
-    tags = models.ManyToManyField(Tag, related_name="posts", blank=True)
-    image = models.URLField(
-        default="https://soliloquywp.com/wp-content/uploads/2016/08/How-to-Set-a-Default-Featured-Image-in-WordPress.png")
+    tags = models.ManyToManyField('Tag', related_name="posts", blank=True)
+    image = models.ImageField(upload_to='posts/', blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -59,6 +58,16 @@ class Post(models.Model):
     class Meta:
         verbose_name = "Публікація"
         verbose_name_plural = "Публікації"
+
+
+class PostImage(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='gallery')
+    image = models.ImageField(upload_to='gallery/')
+    caption = models.CharField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return f"Фото до {self.post.title}"
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
