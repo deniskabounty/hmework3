@@ -1,0 +1,149 @@
+{% extends 'blog/base.html' %}
+{% block main %}
+<style>
+  .auth-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 85vh;
+      animation: fadeIn 0.6s ease-in-out;
+  }
+
+  .auth-card {
+      background-color: #181b1f;
+      color: #e6e6e6;
+      border-radius: 12px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.6);
+      padding: 45px 55px;
+      width: 100%;
+      max-width: 580px;
+      transition: transform 0.3s ease;
+  }
+
+  .auth-card:hover {
+      transform: translateY(-2px);
+  }
+
+  .auth-card h3 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+  }
+
+  label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #c9c9c9;
+  }
+
+  input[type="text"],
+  input[type="password"],
+  input[type="email"] {
+      width: 95%;
+      max-width: 500px;
+      display: block;
+      margin: 0 auto 15px auto;
+      background-color: #23272b;
+      border: 1px solid #3b3f45;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 15px;
+      box-sizing: border-box;
+      transition: border 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 8px rgba(13,110,253,0.4);
+      outline: none;
+  }
+
+  .helptext, ul {
+      font-size: 13px;
+      color: #9ea2a7;
+      margin-top: 5px;
+      line-height: 1.4;
+  }
+
+  .btn-primary {
+      width: 100%;
+      background-color: #007bff;
+      border: none;
+      margin-top: 15px;
+      padding: 10px 0;
+      font-size: 16px;
+      font-weight: 500;
+      border-radius: 6px;
+      transition: background-color 0.2s, transform 0.1s;
+  }
+
+  .btn-primary:hover {
+      background-color: #0069d9;
+      transform: scale(1.02);
+  }
+
+  .auth-footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 14px;
+      color: #ccc;
+  }
+
+  .auth-footer a {
+      color: #4da3ff;
+      text-decoration: none;
+  }
+
+  .auth-footer a:hover {
+      text-decoration: underline;
+  }
+
+  @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <h3>Регистрация</h3>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="form-group">
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        <small class="helptext">{{ form.username.help_text }}</small>
+      </div>
+
+      <div class="form-group">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+      </div>
+
+      <div class="form-group">
+        {{ form.password1.label_tag }}
+        {{ form.password1 }}
+        <small class="helptext">{{ form.password1.help_text }}</small>
+      </div>
+
+      <div class="form-group">
+        {{ form.password2.label_tag }}
+        {{ form.password2 }}
+        <small class="helptext">{{ form.password2.help_text }}</small>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
+    </form>
+
+    <div class="auth-footer">
+      Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'helloweb',
     'blog',
     'crispy_forms',
-    'crispy_bootstrap5'
+    'crispy_bootstrap5',
+    'accounts'
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
